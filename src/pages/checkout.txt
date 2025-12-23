@@ -1,0 +1,43 @@
+import { addStandardPrintApi } from "../services/allAPI";
+
+const submitOrder = async () => {
+  const formData = new FormData();
+
+  // 1️⃣ Customer details
+  formData.append("name", customer.name);
+  formData.append("phone", customer.phone);
+  formData.append("email", customer.email);
+  formData.append("address", customer.address);
+
+  // 2️⃣ Pricing
+  formData.append("subtotal", totals.subtotal);
+  formData.append("discount", totals.discount);
+  formData.append("deliveryCharge", totals.deliveryCharge);
+  formData.append("total", totals.total);
+  formData.append("promoCode", promoCode || "");
+
+  // 3️⃣ Images
+  images.forEach((img, index) => {
+    formData.append("images", img.file); // 🔑 SAME KEY
+    formData.append(`imageMeta[${index}]`, JSON.stringify({
+      size: img.size,
+      paper: img.paper,
+      quantity: img.quantity,
+      cropData: img.cropData
+    }));
+  });
+
+  // 4️⃣ Headers (DON'T touch commonAPI)
+  const headers = {
+    "Content-Type": "multipart/form-data"
+  };
+
+  const result = await addStandardPrintApi(formData, headers);
+
+  if (result.status === 200 || result.status === 201) {
+    alert("Order placed successfully");
+  } else {
+    console.error(result);
+    alert("Order failed");
+  }
+};
